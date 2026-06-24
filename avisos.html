@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackBus - Avisos da Frota</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-principal: #020C1B;
+            --bg-card: #0A192F;
+            --azul-eletrico: #00B4D8;
+            --borda-sutil: #1E3A8A;
+            --texto-claro: #E2EAFC;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-principal);
+            color: var(--texto-claro);
+            font-family: 'Poppins', sans-serif;
+        }
+        .header-avisos {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background-color: var(--bg-card);
+            border-bottom: 1px solid var(--borda-sutil);
+        }
+        .brand-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; font-size: 1.3rem; }
+        .brand-name span { color: var(--azul-eletrico); }
+        
+        .btn-voltar {
+            background: none; border: 1px solid var(--borda-sutil); color: var(--azul-eletrico);
+            padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 0.85rem;
+        }
+
+        .container-avisos { padding: 20px; max-width: 600px; margin: 0 auto; }
+        h2 { font-size: 1.4rem; color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        h2 i { color: var(--azul-eletrico); }
+
+        .lista-avisos { display: flex; flex-direction: column; gap: 15px; }
+        .card-aviso {
+            background-color: var(--bg-card); border: 1px solid var(--borda-sutil);
+            border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-in-out;
+        }
+        .aviso-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #8A99AD; margin-bottom: 8px; font-weight: 600; }
+        .aviso-titulo { font-size: 1.1rem; color: white; margin: 0 0 8px 0; font-weight: 700; }
+        .aviso-mensagem { font-size: 0.9rem; color: #CBD5E1; margin: 0; line-height: 1.5; }
+        
+        .sem-avisos { text-align: center; color: #64748B; padding: 40px 0; font-size: 0.95rem; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-avisos">
+        <div class="brand-name">TRACK<span>BUS</span></div>
+        <a href="index.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+    </header>
+
+    <main class="container-avisos">
+        <h2><i class="fa-solid fa-bell"></i> Comunicados Gerais da Frota</h2>
+        
+        <div class="lista-avisos" id="box-lista-avisos">
+            <div class="sem-avisos">Carregando comunicados oficiais...</div>
+        </div>
+    </main>
+
+    <script>
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZzXiOe8-Zad44M-AMRc8Yczb5nVurpU",
+            authDomain: "onibusnaestrada-ad313.firebaseapp.com",
+            databaseURL: "https://onibusnaestrada-ad313-default-rtdb.firebaseio.com",
+            projectId: "onibusnaestrada-ad313",
+            storageBucket: "onibusnaestrada-ad313.firebasestorage.app",
+            messagingSenderId: "432204344739",
+            appId: "1:432204344739:web:8b89dd476d59578fabbe16",
+            measurementId: "G-LZFC78XWFW"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const database = firebase.database();
+
+        const boxLista = document.getElementById('box-lista-avisos');
+
+        database.ref('avisos_frota').on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                boxLista.innerHTML = '<div class="sem-avisos"><i class="fa-solid fa-circle-info" style="display:block; font-size:2rem; margin-bottom:10px;"></i> Não há nenhum aviso global emitido hoje.</div>';
+                return;
+            }
+
+            let htmlAcumulado = "";
+            snapshot.forEach((childSnap) => {
+                const dados = childSnap.val();
+                htmlAcumulado = `
+                    <div class="card-aviso">
+                        <div class="aviso-meta">
+                            <span><i class="fa-solid fa-bullhorn"></i> Secretaria</span>
+                            <span>${dados.data || ''}</span>
+                        </div>
+                        <h4 class="aviso-titulo">${dados.titulo}</h4>
+                        <p class="aviso-mensagem">${dados.mensagem}</p>
+                    </div>
+                ` + htmlAcumulado;
+            });
+
+            boxLista.innerHTML = htmlAcumulado;
+        });
+    </script>
+</body>
+</html>

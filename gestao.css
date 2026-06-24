@@ -1,0 +1,80 @@
+:root {
+    --bg-principal: #020C1B;
+    --bg-card: #0A192F;
+    --azul-eletrico: #00B4D8;
+    --azul-hover: #0077B6;
+    --texto-claro: #E2EAFC;
+    --borda-sutil: #1E3A8A;
+    --sombra: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body {
+    margin: 0; padding: 0;
+    background-color: var(--bg-principal);
+    color: var(--texto-claro);
+    font-family: 'Poppins', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* HEADER */
+.admin-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; background-color: var(--bg-card);
+    border-bottom: 1px solid var(--borda-sutil);
+    position: sticky; top: 0; z-index: 100;
+}
+.brand-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; font-size: 1.3rem; }
+.brand-name span { color: var(--azul-eletrico); }
+.admin-profile { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; color: #8A99AD; }
+.admin-profile i { color: var(--azul-eletrico); font-size: 1rem; }
+
+/* CONTAINER */
+.admin-container { padding: 20px; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* LAYOUT GRIDS */
+.admin-grid-top { display: flex; flex-direction: column; gap: 20px; }
+
+/* CARDS */
+.admin-card { background-color: var(--bg-card); border: 1px solid var(--borda-sutil); border-radius: 14px; padding: 22px; box-shadow: var(--sombra); flex: 1; }
+.admin-card h3 { margin: 0 0 8px 0; font-size: 1.15rem; font-weight: 600; color: white; display: flex; align-items: center; gap: 10px; }
+.admin-card h3 i { color: var(--azul-eletrico); }
+.card-instruction { margin: 0 0 18px 0; font-size: 0.8rem; color: #8A99AD; line-height: 1.4; }
+
+/* FORMULÁRIOS */
+.admin-input-group { margin-bottom: 16px; display: flex; flex-direction: column; }
+.admin-input-group label { font-size: 0.8rem; color: #8A99AD; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.admin-container input[type="text"], 
+.admin-container input[type="time"], 
+.admin-container select, 
+.admin-container textarea {
+    width: 100%; padding: 14px; background-color: var(--bg-principal); border: 1px solid var(--borda-sutil); border-radius: 8px; color: white; font-size: 0.95rem; outline: none; font-family: inherit;
+}
+.admin-container textarea { resize: none; }
+.admin-container input:focus, .admin-container select:focus, .admin-container textarea:focus { border-color: var(--azul-eletrico); }
+
+.form-row { display: flex; flex-direction: column; gap: 0; }
+.flex-1 { flex: 1; }
+
+/* BOTÕES DE AÇÃO */
+.btn-admin-action {
+    width: 100%; padding: 14px; background-color: transparent; border: 2px solid var(--azul-eletrico); color: var(--azul-eletrico); border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+}
+.btn-admin-action:hover { background-color: var(--azul-eletrico); color: var(--bg-principal); }
+.btn-accent { border-color: #10B981; color: #10B981; }
+.btn-accent:hover { background-color: #10B981; color: white; }
+.btn-large { background-color: var(--azul-eletrico); color: var(--bg-principal); padding: 16px; font-size: 1rem; }
+.btn-large:hover { background-color: var(--azul-hover); color: white; border-color: var(--azul-hover); }
+
+.btn-back-admin {
+    width: 100%; padding: 15px; background-color: rgba(255, 255, 255, 0.03); border: 1px dashed #475569; color: #94A3B8; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; transition: 0.2s;
+}
+.btn-back-admin:hover { background-color: rgba(239, 68, 68, 0.1); border-color: #EF4444; color: #EF4444; }
+
+/* RESPONSIVIDADE PARA COMPUTADOR */
+@media (min-width: 768px) {
+    .admin-grid-top { flex-direction: row; }
+    .form-row { flex-direction: row; gap: 20px; }
+    .admin-container { padding: 40px 20px; gap: 25px; }
+}

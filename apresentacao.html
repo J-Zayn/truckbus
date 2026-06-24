@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação TrackBus</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-principal: #020C1B;
+            --bg-card: #0A192F;
+            --azul-eletrico: #00B4D8;
+            --azul-hover: #0077B6;
+            --texto-claro: #E2EAFC;
+            --texto-escuro: #8A99AD;
+            --borda-sutil: #1E3A8A;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg-principal);
+            color: var(--texto-claro);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+      
+        .slide-container {
+            position: relative;
+            width: 100%; height: 100%;
+        }
+
+      
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-sizing: border-box;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.98);
+            text-align: center;
+        }
+
+        /* SLIDE ATIVO (O QUE APARECE) */
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        /* REGRAS DE TEXTO */
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .brand-logo span { color: var(--azul-eletrico); }
+
+        h1 { font-size: 2.5rem; color: white; margin-bottom: 20px; font-weight: 700; }
+        h2 { font-size: 1.8rem; color: var(--azul-eletrico); margin-bottom: 25px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        p { font-size: 1.2rem; color: var(--texto-escuro); max-width: 800px; line-height: 1.6; margin: 0 0 20px 0; }
+        
+        .destaque { color: white; font-weight: 600; }
+
+        /* LISTAS E GRIDS WORK */
+        .slide-content-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--borda-sutil);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 850px;
+            width: 100%;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            text-align: left;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 950px;
+            margin-top: 20px;
+        }
+
+        .card-pilar {
+            background-color: var(--bg-card);
+            border: 1px solid var(--borda-sutil);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+        .card-pilar i { font-size: 1.5rem; color: var(--azul-eletrico); margin-bottom: 10px; display: block; }
+        .card-pilar strong { color: white; display: block; margin-bottom: 5px; font-size: 1.1rem; }
+        .card-pilar span { font-size: 0.85rem; color: var(--texto-escuro); line-height: 1.4; display: block; }
+
+        /* CONTROLES DE NAVEGAÇÃO FLUTUANTES */
+        .nav-controls {
+            position: absolute;
+            bottom: 30px; right: 30px;
+            display: flex; gap: 15px;
+            z-index: 1000;
+        }
+
+        .btn-nav {
+            background-color: var(--bg-card);
+            border: 1px solid var(--borda-sutil);
+            color: var(--azul-eletrico);
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .btn-nav:hover { background-color: var(--azul-eletrico); color: var(--bg-principal); border-color: var(--azul-eletrico); }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 45px; left: 40px;
+            font-size: 0.9rem;
+            color: var(--texto-escuro);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        
+        .btn-demo {
+            display: inline-flex; align-items: center; gap: 10px;
+            background-color: var(--azul-eletrico); color: var(--bg-principal);
+            padding: 15px 30px; border-radius: 8px; font-weight: 700;
+            text-decoration: none; margin-top: 20px; font-size: 1.1rem; transition: 0.2s;
+        }
+        .btn-demo:hover { background-color: var(--azul-hover); color: white; }
+
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.3rem; }
+            p { font-size: 0.95rem; }
+            .brand-logo { font-size: 2.5rem; }
+            .grid-3 { grid-template-columns: 1fr; gap: 10px; }
+            .slide-content-box { padding: 20px; }
+            .slide { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+
+        <div class="slide active">
+            <div class="brand-logo">TRACK<span>BUS</span></div>
+            <h1>Previsibilidade e Agilidade no Transporte Escolar</h1>
+            <p>Projeto integrador focado no desenvolvimento de uma solução para monitoramento e comunicação em tempo real no transporte escolar</p>
+            <div style="margin-top: 30px; color: var(--azul-eletrico); font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 2px;">
+                
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2><i class="fa-solid fa-circle-exclamation"></i> O Problema & A Solução</h2>
+            <div class="slide-content-box">
+                <p><strong class="destaque">Dilema Diário:</strong> Alunos enfrentam estresse devido à falta de informações sobre as rotas. Quebras no veículo, trânsito intenso e atrasos inesperados dificultam o acompanhamento do transporte e geram incertezas sobre os horários de chegada.</p>
+                <p style="margin-bottom: 0;"><strong class="destaque"> TrackBus:</strong> É uma plataforma que integra alunos, motoristas e a gestão escolar em um único ambiente, permitindo o acompanhamento das rotas em tempo real, o envio de avisos sobre atrasos, alterações e ocorrências, além de reduzir a incerteza sobre os horários de chegada dos veículos.</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2><i class="fa-solid fa-code"></i> Arquitetura & Stack Tecnológica</h2>
+            <div class="slide-content-box">
+                <p><strong class="destaque">Interface Web (Frontend):</strong> O site foi desenvolvido utilizando HTML5, CSS3 e JavaScript puro, com layout responsivo para dispositivos móveis e recursos interativos na interface</p>
+                <p><strong class="destaque">Componentes de UX:</strong> O sistema utiliza Leaflet.js para os mapas interativos e SweetAlert2 para notificações e janelas modais.</p>
+                <p style="margin-bottom: 0;"><strong class="destaque">Infraestrutura Backend:</strong> <span class="destaque" style="color: var(--azul-eletrico);">Firebase Realtime Database</span>. A comunicação em tempo real foi implementada com Firebase Realtime Database, permitindo a atualização automática das informações de GPs na interface</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2><i class="fa-solid fa-cubes"></i> Divisão de Papéis Operacionais</h2>
+            <div class="grid-3">
+                <div class="card-pilar">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <strong>1. Painel do Aluno</strong>
+                    <span>Busca rotas filtradas por sede polo, assiste ao mapa ao vivo com o ônibus andando e lê comunicados oficiais.</span>
+                </div>
+                <div class="card-pilar">
+                    <i class="fa-solid fa-bus"></i>
+                    <strong>2. Painel do Condutor</strong>
+                    <span>Interface otimizada para dispositivos móveis, com controles de status de fácil acesso e um simulador de GPS que atualiza a localização do veículo a cada 4 segundos.</span>
+                </div>
+                <div class="card-pilar">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <strong>3. Central de Gestão</strong>
+                    <span>Ambiente administrativo responsável pelo gerenciamento de rotas, sedes e comunicados, oferecendo acompanhamento em tempo real das operações do transporte escolar.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="brand-logo" style="font-size: 2.2rem; margin-bottom: 0;">TRACK<span>BUS</span></div>
+            <h1>Conclusão do Projeto</h1>
+            <p>Um sistema funcional, escalável, independente de servidores complexos e pronto para o mercado estudantil.</p>
+            
+            <a href="index.html" class="btn-demo">
+                Iniciar Demonstração Prática <i class="fa-solid fa-play"></i>
+            </a>
+        </div>
+
+        <div class="slide-counter" id="contador-view">Slide: 1 / 5</div>
+        
+        <div class="nav-controls">
+            <button class="btn-nav" id="btn-ant" aria-label="Slide Anterior"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="btn-nav" id="btn-prox" aria-label="Próximo Slide"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const btnAnt = document.getElementById('btn-ant');
+            const btnProx = document.getElementById('btn-prox');
+            const contador = document.getElementById('contador-view');
+            
+            let slideAtual = 0;
+            const totalSlides = slides.length;
+
+            const atualizarSlides = () => {
+                slides.forEach((slide, index) => {
+                    if (index === slideAtual) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+                contador.innerText = `Slide: ${slideAtual + 1} / ${totalSlides}`;
+            };
+
+            const proximoSlide = () => {
+                if (slideAtual < totalSlides - 1) {
+                    slideAtual++;
+                    atualizarSlides();
+                }
+            };
+
+            const slideAnterior = () => {
+                if (slideAtual > 0) {
+                    slideAtual--;
+                    atualizarSlides();
+                }
+            };
+
+            
+            btnProx.addEventListener('click', proximoSlide);
+            btnAnt.addEventListener('click', slideAnterior);
+
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') proximoSlide();
+                if (e.key === 'ArrowLeft') slideAnterior();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackBus - Rastreamento de Rotas</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="brand-name">
+            TRACK<span>BUS</span>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-logo-trigger" id="open-auth-menu" aria-label="Área Restrita">
+             <img src="https://files.catbox.moe/ogvb4x.png" alt="Logo TrackBus" class="logo-foto">
+            </button>
+
+            <button class="btn-menu-trigger" id="open-menu" aria-label="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="auth-dropdown" id="auth-menu">
+            <div class="auth-dropdown-title">Acesso Restrito</div>
+            <a href="#" class="auth-link btn-login-motorista"><i class="fa-solid fa-id-card"></i> Área do Motorista</a>
+            <a href="#" class="auth-link btn-login-secretaria"><i class="fa-solid fa-user-shield"></i> Área da Secretaria</a>
+        </div>
+    </header>
+
+    <div class="nav-sidebar" id="sidebar-menu">
+        <div class="sidebar-header">
+            <div class="brand-sidebar">TRACK<span>BUS</span></div>
+            <button class="btn-close-sidebar" id="close-menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-links">
+            <a href="#" id="menu-home">Página inicial</a>
+            <a href="#" id="menu-sobre">Sobre nós</a>
+            <a href="#" id="menu-avisos">Avisos da Frota</a>
+            <a href="#" id="menu-feedback">Fale conosco</a>
+        </nav>
+    </div>
+
+    <div class="sidebar-overlay" id="menu-overlay"></div>
+
+    <main class="content-wrapper">
+        <section class="hero-section">
+            <h2>Agilidade e previsibilidade no seu transporte diário.</h2>
+        </section>
+
+        <section class="search-container">
+            <form id="form-busca-estudante">
+<div class="input-group">
+    <label for="select-cidade"><i class="fa-solid fa-location-dot"></i> Cidade Polo / Sede</label>
+    <select id="select-cidade" required>
+        <option value="" disabled selected>Carregando cidades...</option>
+    </select>
+</div>
+
+<div class="input-group">
+    <label for="select-rota"><i class="fa-solid fa-route"></i> Rota / Itinerário</label>
+    <select id="select-rota" disabled required>
+        <option value="" disabled selected>Selecione a cidade primeiro...</option>
+    </select>
+</div>
+
+
+                <button type="submit" class="btn-buscar">
+                    Buscar Rota <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </section>
+
+        <section class="results-container" id="section-resultados">
+            <div class="result-header">
+                <div class="status-wrapper">
+                    <span class="status-indicator" id="rota-status-badge">Fora de Operação</span>
+                </div>
+                <div class="alert-banner" id="rota-aviso-texto">
+                    <i class="fa-solid fa-circle-check"></i> Sem ocorrências no trajeto.
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <span class="detail-label">Condutor Responsável</span>
+                    <strong class="detail-value" id="rota-motorista">---</strong>
+                </div>
+                <div class="detail-card split-row">
+                    <div>
+                        <span class="detail-label">Horário de Saída</span>
+                        <strong class="detail-value" id="rota-horario-inicio">--:--</strong>
+                    </div>
+                    <div>
+                        <span class="detail-label">Previsão de Chegada</span>
+                        <strong class="detail-value" id="rota-horario-chegada">--:--</strong>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Trajeto e Pontos de Passagem</span>
+                    <p class="detail-text" id="rota-itinerario">Selecione uma rota para ver os pontos.</p>
+                </div>
+            </div>
+
+            <div class="map-wrapper">
+                <div id="mapa-estudante"></div>
+            </div>
+        </section>
+    </main>
+
+
+    <script src="trackbus.js"></script>
+</body>
+</html>

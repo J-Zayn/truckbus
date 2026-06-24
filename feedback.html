@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackBus - Enviar Feedback</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-principal: #020C1B;
+            --bg-card: #0A192F;
+            --azul-eletrico: #00B4D8;
+            --borda-sutil: #1E3A8A;
+            --texto-claro: #E2EAFC;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-principal);
+            color: var(--texto-claro);
+            font-family: 'Poppins', sans-serif;
+        }
+        .header-feedback {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background-color: var(--bg-card);
+            border-bottom: 1px solid var(--borda-sutil);
+        }
+        .brand-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; font-size: 1.3rem; }
+        .brand-name span { color: var(--azul-eletrico); }
+        
+        .btn-voltar {
+            background: none; border: 1px solid var(--borda-sutil); color: var(--azul-eletrico);
+            padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 0.85rem;
+        }
+
+        .container-feedback { padding: 20px; max-width: 550px; margin: 0 auto; }
+        h2 { font-size: 1.3rem; color: white; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        h2 i { color: var(--azul-eletrico); }
+        .subtitle { color: #8A99AD; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.4; }
+
+        .card-feedback { background-color: var(--bg-card); border: 1px solid var(--borda-sutil); border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        
+        .input-group { margin-bottom: 18px; display: flex; flex-direction: column; }
+        .input-group label { font-size: 0.8rem; color: #8A99AD; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+        
+        input[type="text"], select, textarea {
+            width: 100%; padding: 14px; background-color: var(--bg-principal); border: 1px solid var(--borda-sutil); border-radius: 8px; color: white; font-size: 0.95rem; outline: none; font-family: inherit; box-sizing: border-box;
+        }
+        textarea { resize: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--azul-eletrico); }
+
+        .btn-enviar-feedback {
+            width: 100%; padding: 15px; background-color: var(--azul-eletrico); color: var(--bg-principal); border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;
+        }
+        .btn-enviar-feedback:hover { background-color: #0077B6; color: white; }
+    </style>
+</head>
+<body>
+
+    <header class="header-feedback">
+        <div class="brand-name">TRACK<span>BUS</span></div>
+        <a href="index.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+    </header>
+
+    <main class="container-feedback">
+        <h2><i class="fa-solid fa-comments"></i> Central de Feedback</h2>
+        <p class="subtitle">Sua opinião ajuda a secretaria a melhorar as rotas, os horários e o atendimento do transporte estudantil.</p>
+        
+        <div class="card-feedback">
+            <form id="form-feedback-estudante">
+                <div class="input-group">
+                    <label for="fb-nome">Seu Nome (Opcional)</label>
+                    <input type="text" id="fb-nome" placeholder="Deixe em branco para enviar como Anônimo" autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label for="fb-tipo">Tipo de Mensagem</label>
+                    <select id="fb-tipo" required>
+                        <option value="" disabled selected>Escolha uma opção...</option>
+                        <option value="Sugestão">💡 Sugestão de Melhoria</option>
+                        <option value="Elogio">⭐ Elogio / Agradecimento</option>
+                        <option value="Reclamação">⚠️ Reclamação / Problema</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="fb-mensagem">Sua Mensagem</label>
+                    <textarea id="fb-mensagem" rows="5" placeholder="Explique detalhadamente sua ideia ou o problema..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-enviar-feedback">
+                    Enviar Mensagem <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script src="feedback.js"></script>
+</body>
+</html>

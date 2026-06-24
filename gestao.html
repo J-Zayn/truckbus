@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackBus - Painel de Gestão</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-principal: #020C1B;
+            --bg-card: #0A192F;
+            --azul-eletrico: #00B4D8;
+            --borda-sutil: #1E3A8A;
+            --texto-claro: #E2EAFC;
+            --texto-escuro: #8A99AD;
+            --verde-sucesso: #10B981;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-principal);
+            color: var(--texto-claro);
+            font-family: 'Poppins', sans-serif;
+        }
+        .header-gestao {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background-color: var(--bg-card);
+            border-bottom: 1px solid var(--borda-sutil);
+        }
+        .brand-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; font-size: 1.3rem; }
+        .brand-name span { color: var(--azul-eletrico); }
+        
+        .user-badge { font-size: 0.85rem; font-weight: 600; color: var(--texto-escuro); display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+        .user-badge i { color: var(--azul-eletrico); }
+
+        .container-gestao { padding: 20px; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        
+        .admin-card { background-color: var(--bg-card); border: 1px solid var(--borda-sutil); border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .admin-card h3 { margin: 0 0 5px 0; font-size: 1.15rem; color: white; display: flex; align-items: center; gap: 8px; }
+        .admin-card h3 i { color: var(--azul-eletrico); }
+        
+        .card-instruction { color: var(--texto-escuro); font-size: 0.8rem; margin: 0 0 20px 0; line-height: 1.4; }
+
+        .input-group { margin-bottom: 16px; display: flex; flex-direction: column; }
+        .input-group label { font-size: 0.75rem; color: var(--texto-escuro); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+        
+        input[type="text"], select, textarea {
+            width: 100%; padding: 14px; background-color: var(--bg-principal); border: 1px solid var(--borda-sutil); border-radius: 8px; color: white; font-size: 0.95rem; outline: none; font-family: inherit; box-sizing: border-box;
+        }
+        textarea { resize: none; }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='white'><path d='M0 3h10L5 8z'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; }
+        input:focus, select:focus, textarea:focus { border-color: var(--azul-eletrico); }
+
+        .btn-admin-action {
+            width: 100%; padding: 14px; background: none; border: 1px solid var(--azul-eletrico); color: var(--azul-eletrico); border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-admin-action.btn-green { border-color: var(--verde-sucesso); color: var(--verde-sucesso); }
+        .btn-admin-action:hover { background-color: rgba(0, 180, 216, 0.05); }
+        .btn-admin-action.btn-green:hover { background-color: rgba(16, 185, 129, 0.05); }
+
+        .btn-logout {
+            width: 100%; padding: 14px; background: none; border: 1px dashed var(--texto-escuro); color: var(--texto-claro); border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-principal); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--borda-sutil); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--azul-eletrico); }
+    </style>
+</head>
+<body>
+
+    <header class="header-gestao">
+        <div class="brand-name">TRACK<span>BUS</span></div>
+        <div class="user-badge"><i class="fa-solid fa-user-shield"></i> Gestão Escolar</div>
+    </header>
+
+    <main class="container-gestao">
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-map-location-dot"></i> Adicionar Cidade Polo</h3>
+            <p class="card-instruction">Adicione uma nova cidade sede para agrupar as rotas escolares.</p>
+            <form id="form-cadastro-sede">
+                <div class="input-group">
+                    <label for="cad-nome-sede">Nome da Cidade</label>
+                    <input type="text" id="cad-nome-sede" placeholder="Ex: Guarabira" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn-admin-action">
+                    <i class="fa-solid fa-plus"></i> Adicionar Sede
+                </button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-user-plus"></i> Cadastrar Condutor</h3>
+            <p class="card-instruction">Insira o nome do motorista. O sistema irá gerar uma matrícula aleatória única de acesso (Ex: UWI4O).</p>
+            <form id="form-cadastro-motorista">
+                <div class="input-group">
+                    <label for="cad-nome-motorista">Nome Completo do Motorista</label>
+                    <input type="text" id="cad-nome-motorista" placeholder="Ex: João Pedro Felipe" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn-admin-action btn-green">
+                    <i class="fa-solid fa-user-check"></i> Registrar e Gerar Código
+                </button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-bus"></i> Motoristas Cadastrados</h3>
+            <p class="card-instruction">Gerencie os condutores ativos e remova-os do sistema se necessário.</p>
+            <div id="lista-motoristas-container" style="max-height: 260px; overflow-y: auto; padding-right: 5px;">
+                <div style="color: #64748B; text-align:center; padding:15px; font-size:0.85rem;">Carregando motoristas...</div>
+            </div>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-route"></i> Criar Nova Rota Escolar</h3>
+            <p class="card-instruction">Insira as informações completas de horário, trajeto, itinerário e defina o condutor.</p>
+            <form id="form-cadastro-rota">
+                <div class="input-group">
+                    <label for="rota-sede-select">Selecione a Cidade Polo</label>
+                    <select id="rota-sede-select" required>
+                        <option value="">Carregando sedes...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="cad-nome-rota">Identificação da Rota</label>
+                    <input type="text" id="cad-nome-rota" placeholder="Ex: Rota 01" autocomplete="off" required>
+                </div>
+                <div class="input-group">
+                    <label for="cad-trajeto-rota">Trajeto</label>
+                    <input type="text" id="cad-trajeto-rota" placeholder="Ex: Zona Rural para o Centro" autocomplete="off" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="input-group" style="flex: 1;">
+                        <label for="cad-inicio-rota">Horário de Saída</label>
+                        <input type="text" id="cad-inicio-rota" placeholder="Ex: 18:30" autocomplete="off" required>
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label for="cad-chegada-rota">Horário de Chegada</label>
+                        <input type="text" id="cad-chegada-rota" placeholder="Ex: 19:15" autocomplete="off" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="cad-itinerario-rota">Itinerário (Pontos de Passagem)</label>
+                    <textarea id="cad-itinerario-rota" rows="2" placeholder="Ex: Saída da Praça, Passa na BR, Destino Escola" required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="rota-motorista-select">Condutor Responsável</label>
+                    <select id="rota-motorista-select" required>
+                        <option value="">Carregando condutores...</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-admin-action">
+                    <i class="fa-solid fa-plus"></i> Criar Nova Rota
+                </button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-map-marked-alt"></i> Rotas Cadastradas</h3>
+            <p class="card-instruction">Acompanhe as rotas ativas por cidade e exclua as linhas descontinuadas.</p>
+            <div id="lista-rotas-container" style="max-height: 280px; overflow-y: auto; padding-right: 5px;">
+                <div style="color: #64748B; text-align:center; padding:15px; font-size:0.85rem;">Carregando rotas...</div>
+            </div>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-bullhorn"></i> Transmitir Aviso Global</h3>
+            <p class="card-instruction">Envie alertas sobre manutenção, atrasos ou alterações nas linhas para todos os alunos.</p>
+            <form id="form-transmissao-aviso">
+                <div class="input-group">
+                    <label for="aviso-titulo">Título do Alerta</label>
+                    <input type="text" id="aviso-titulo" placeholder="Ex: Manutenção no Ônibus 3" autocomplete="off" required>
+                </div>
+                <div class="input-group">
+                    <label for="aviso-mensagem">Mensagem Completa do Alerta</label>
+                    <textarea id="aviso-mensagem" rows="3" placeholder="Ex: O veículo da rota X passará por reparos hoje..." required></textarea>
+                </div>
+                <button type="submit" class="btn-admin-action btn-green">
+                    <i class="fa-solid fa-paper-plane"></i> Transmitir Aviso Global
+                </button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-bell"></i> Avisos Ativos na Rede</h3>
+            <div id="lista-avisos-container" style="max-height: 260px; overflow-y: auto; padding-right: 5px;">
+                <div style="color: #64748B; text-align:center; padding:15px; font-size:0.85rem;">Carregando alertas...</div>
+            </div>
+        </section>
+
+        <section class="admin-card">
+            <h3><i class="fa-solid fa-inbox"></i> Histórico de Feedback</h3>
+            <p class="card-instruction">Mensagens, críticas e dúvidas enviadas pelos alunos em tempo real via Firebase.</p>
+            <div id="lista-feedbacks-postgres" style="display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; padding-right: 5px;">
+                <div style="color: #64748B; text-align:center; padding:20px; font-size:0.85rem;">Carregando mensagens dos alunos...</div>
+            </div>
+        </section>
+
+        <button id="btn-voltar-index" class="btn-logout">
+            <i class="fa-solid fa-house"></i> Sair do Painel de Gestão
+        </button>
+
+    </main>
+
+    <script src="gestao.js"></script>
+</body>
+</html>
