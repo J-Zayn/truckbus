@@ -32,10 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const txtRotaAtribuida = document.getElementById('texto-rota-atribuida');
 
     let rotaAtiva = "";
-    let gpsIntervalo = null;
-    
-    let latSimulada = -6.8522;
-    let lngSimulada = -35.4908;
+    let geoWatchId = null;
 
     database.ref('rotas').on('value', (snapshot) => {
         let rotaEncontrada = false;
@@ -74,14 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
     statusBotoes.forEach(botao => {
         botao.addEventListener('click', () => {
             if (!rotaAtiva) return;
-            const statusAlvo = Math.random() ? botao.getAttribute('data-status') : botao.getAttribute('data-status');
             const statusReal = botao.getAttribute('data-status');
             
             database.ref(`rotas/${rotaAtiva}`).update({
                 status: statusReal
             }).then(() => {
                 marcarStatusAtivo(statusReal);
-                if(statusReal === "Fora de Operação" && gpsIntervalo) {
+                if(statusReal === "Fora de Operação" && geoWatchId) {
                     btnToggleGps.click();
                 }
             });
@@ -105,26 +101,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rotaAtiva) return;
         const indicadorBox = document.getElementById('gps-indicator');
         
-        if (!gpsIntervalo) {
-            gpsIntervalo = setInterval(() => {
-                latSimulada += (Math.random() - 0.5) * 0.0005;
-                lngSimulada += (Math.random() - 0.5) * 0.0005;
+        if (!geoWatchId) {
+            if ("geolocation" in navigator) {
+                geoWatchId = navigator.geolocation.watchPosition((position) => {
+                    const latReal = position.coords.latitude;
+                    const lngReal = position.coords.longitude;
 
-                database.ref(`rotas/${rotaAtiva}`).update({
-                    latitude: latSimulada,
-                    longitude: lngSimulada
+                    database.ref(`rotas/${rotaAtiva}`).update({
+                        latitude: latReal,
+                        longitude: lngReal
+                    });
+                }, (error) => {
+                    Swal.fire({
+                        title: 'Erro no GPS',
+                        text: 'Ative a localização do seu celular e dê permissão ao aplicativo.',
+                        icon: 'error',
+                        background: '#0A192F',
+                        color: 'white'
+                    });
+                    if (geoWatchId) {
+                        navigator.geolocation.clearWatch(geoWatchId);
+                        geoWatchId = null;
+                        btnToggleGps.classList.remove('active');
+                        btnToggleGps.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Ativar Transmissão GPS';
+                        indicadorBox.classList.remove('active');
+                        gpsStatusText.innerText = "Transmissão Desligada";
+                    }
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 10000
                 });
-            }, 4000);
 
-            btnToggleGps.classList.add('active');
-            btnToggleGps.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Desligar Transmissão GPS';
-            indicadorBox.classList.add('active');
-            gpsStatusText.innerText = "Transmitindo Localização...";
+                btnToggleGps.classList.add('active');
+                btnToggleGps.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Desligar Transmissão GPS';
+                indicadorBox.classList.add('active');
+                gpsStatusText.innerText = "Transmitindo Localização Real...";
+            } else {
+                Swal.fire({ title: 'Não Suportado', text: 'Seu dispositivo não possui suporte a GPS.', icon: 'error', background: '#0A192F', color: 'white' });
+            }
         } else {
-            clearInterval(gpsIntervalo);
-            gpsIntervalo = null;
+            navigator.geolocation.clearWatch(geoWatchId);
+            geoWatchId = null;
             btnToggleGps.classList.remove('active');
-            btnToggleGps.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Ativar Transmissão GPS (Simulado)';
+            btnToggleGps.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Ativar Transmissão GPS';
             indicadorBox.classList.remove('active');
             gpsStatusText.innerText = "Transmissão Desligada";
         }
@@ -144,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelButtonText: 'Voltar'
         }).then((result) => {
             if (result.isConfirmed) {
-                if (gpsIntervalo) clearInterval(gpsIntervalo);
+                if (geoWatchId) navigator.geolocation.clearWatch(geoWatchId);
                 localStorage.clear();
                 window.location.href = 'index.html';
             }

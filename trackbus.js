@@ -71,6 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
             authMenu.classList.remove('active');
             alternarMenu(false);
 
+            // Intercepta aqui: Se já estiver logado, vai direto pro painel sem abrir o Swal
+            const motoristaLogado = localStorage.getItem('trackbus_motorista_nome');
+            if (motoristaLogado) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
             Swal.fire({
                 title: 'Acesso do Motorista',
                 html: `
@@ -303,7 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-        if ('serviceWorker' in navigator) {
+
+    if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
