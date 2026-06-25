@@ -31,32 +31,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const gpsStatusText = document.getElementById('gps-status-text');
     const txtRotaAtribuida = document.getElementById('texto-rota-atribuida');
 
-    let rotaAtiva = "";
+    // SOLUÇÃO DE ARQUITETURA: Armazena a lista de rotas e qual está selecionada no momento
+    let listaRotasDoMotorista = []; 
+    let rotaSelecionadaId = null;
     let geoWatchId = null;
 
     database.ref('rotas').on('value', (snapshot) => {
-        let rotaEncontrada = false;
+        listaRotasDoMotorista = []; // Limpa a lista local
+        
         if (snapshot.exists()) {
             snapshot.forEach((child) => {
                 const dados = child.val();
                 if (dados.motorista === motoristaNome) {
-                    rotaAtiva = child.key;
-                    rotaEncontrada = true;
-                    
-                    if (txtRotaAtribuida) {
-                        txtRotaAtribuida.innerText = `${dados.sede} - ${dados.nome} (${dados.trajeto})`;
-                    }
-                    
-                    controlesJornada.classList.add('active');
-                    if (dados.status) marcarStatusAtivo(dados.status);
+                    // Guarda o objeto completo da rota
+                    listaRotasDoMotorista.push({
+                        id: child.key,
+                        nome: dados.nome,
+                        sede: dados.sede,
+                        trajeto: dados.trajeto,
+                        status: dados.status || "Fora de Operação"
+                    });
                 }
             });
         }
-        if (!rotaEncontrada && txtRotaAtribuida) {
-            txtRotaAtribuida.innerText = "Nenhuma rota atribuída para você hoje.";
+        
+        // Se mudou o banco e a rota selecionada sumiu, reinicia para a primeira
+        if (listaRotasDoMotorista.length > 0) {
+            const aindaExiste = listaRotasDoMotorista.find(r => r.id === rotaSelecionadaId);
+            if (!aindaExiste) {
+                rotaSelecionadaId = listaRotasDoMotorista[0].id;
+            }
+            controlesJornada.classList.add('active');
+            renderizarSeletorDeRotas();
+        } else {
+            rotaSelecionadaId = null;
+            if (txtRotaAtribuida) txtRotaAtribuida.innerText = "Nenhuma rota atribuída para você hoje.";
             controlesJornada.classList.remove('active');
         }
     });
+
+    // Função que cria o visual de seleção se houver mais de uma rota
+    const renderizarSeletorDeRotas = () => {
+        if (!txtRotaAtribuida) return;
+
+        if (listaRotasDoMotorista.length === 1) {
+            // Apenas 1 rota: Mostra o texto normal direto
+            const rota = listaRotasDoMotorista[0];
+            txtRotaAtribuida.innerText = `${rota.sede} - ${rota.nome} (${rota.trajeto})`;
+            marcarStatusAtivo(rota.status);
+        } else {
+            // Múltiplas rotas: Cria o Dropdown dinâmico com estilo personalizado
+            let htmlSelect = `<label style="display:block; margin-bottom:8px; font-size:12px; color:#64ffda;">Selecione a Rota para Operar:</label>`;
+            htmlSelect += `<select id="select-rota-motorista" style="width:100%; padding:10px; background:#172A45; color:white; border:1px solid #64ffda; border-radius:5px; font-size:14px; outline:none;">`;
+            
+            listaRotasDoMotorista.forEach(rota => {
+                const selecionado = rota.id === rotaSelecionadaId ? "selected" : "";
+                htmlSelect += `<option value="${rota.id}" ${selecionado}>${rota.sede} - ${rota.nome}</option>`;
+            });
+            
+            htmlSelect += `</select>`;
+            txtRotaAtribuida.innerHTML = htmlSelect;
+
+            // Escuta quando o motorista muda de rota no seletor
+            const selectElement = document.getElementById('select-rota-motorista');
+            if (selectElement) {
+                selectElement.addEventListener('change', (e) => {
+                    rotaSelecionadaId = e.target.value;
+                    // Atualiza os botões para mostrar o status dessa rota selecionada
+                    const rotaAtual = listaRotasDoMotorista.find(r => r.id === rotaSelecionadaId);
+                    if (rotaAtual) marcarStatusAtivo(rotaAtual.status);
+                });
+            }
+
+            // Marca o status inicial da rota que já estava selecionada
+            const rotaAtual = listaRotasDoMotorista.find(r => r.id === rotaSelecionadaId);
+            if (rotaAtual) marcarStatusAtivo(rotaAtual.status);
+        }
+    };
 
     const marcarStatusAtivo = (statusNome) => {
         statusBotoes.forEach(btn => {
@@ -70,35 +121,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     statusBotoes.forEach(botao => {
         botao.addEventListener('click', () => {
-            if (!rotaAtiva) return;
+            if (!rotaSelecionadaId) return;
             const statusReal = botao.getAttribute('data-status');
             
-            database.ref(`rotas/${rotaAtiva}`).update({
+            // ATUALIZA APENAS A ROTA SELECIONADA
+            database.ref(`rotas/${rotaSelecionadaId}`).update({
                 status: statusReal
-            }).then(() => {
-                marcarStatusAtivo(statusReal);
-                if(statusReal === "Fora de Operação" && geoWatchId) {
-                    btnToggleGps.click();
-                }
             });
+
+            if(statusReal === "Fora de Operação" && geoWatchId) {
+                btnToggleGps.click();
+            }
         });
     });
 
     incidentBotoes.forEach(botao => {
         botao.addEventListener('click', () => {
-            if (!rotaAtiva) return;
+            if (!rotaSelecionadaId) return;
             const motivoTexto = botao.getAttribute('data-motivo');
             incidentBotoes.forEach(b => b.classList.remove('active'));
             botao.classList.add('active');
 
-            database.ref(`rotas/${rotaAtiva}`).update({
+            // ENVIA ALERTA APENAS PARA A ROTA SELECIONADA
+            database.ref(`rotas/${rotaSelecionadaId}`).update({
                 motivo: motivoTexto
             });
         });
     });
 
     btnToggleGps.addEventListener('click', () => {
-        if (!rotaAtiva) return;
+        if (!rotaSelecionadaId) return;
         const indicadorBox = document.getElementById('gps-indicator');
         
         if (!geoWatchId) {
@@ -107,18 +159,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const latReal = position.coords.latitude;
                     const lngReal = position.coords.longitude;
 
-                    database.ref(`rotas/${rotaAtiva}`).update({
-                        latitude: latReal,
-                        longitude: lngReal
-                    });
+                    // TRANSMITE O GPS APENAS PARA A ROTA ATUALMENTE SELECIONADA
+                    if (rotaSelecionadaId) {
+                        database.ref(`rotas/${rotaSelecionadaId}`).update({
+                            latitude: latReal,
+                            longitude: lngReal
+                        });
+                    }
                 }, (error) => {
-                    Swal.fire({
-                        title: 'Erro no GPS',
-                        text: 'Ative a localização do seu celular e dê permissão ao aplicativo.',
-                        icon: 'error',
-                        background: '#0A192F',
-                        color: 'white'
-                    });
+                    Swal.fire({ title: 'Erro no GPS', text: 'Ative a localização e dê permissão.', icon: 'error', background: '#0A192F', color: 'white' });
                     if (geoWatchId) {
                         navigator.geolocation.clearWatch(geoWatchId);
                         geoWatchId = null;
@@ -138,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 indicadorBox.classList.add('active');
                 gpsStatusText.innerText = "Transmitindo Localização Real...";
             } else {
-                Swal.fire({ title: 'Não Suportado', text: 'Seu dispositivo não possui suporte a GPS.', icon: 'error', background: '#0A192F', color: 'white' });
+                Swal.fire({ title: 'Não Suportado', text: 'Sem suporte a GPS.', icon: 'error', background: '#0A192F', color: 'white' });
             }
         } else {
             navigator.geolocation.clearWatch(geoWatchId);
@@ -153,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-sair-painel').addEventListener('click', () => {
         Swal.fire({
             title: 'Encerrar Turno?',
-            text: "Os alunos não conseguirão mais ver sua posição atualizada.",
+            text: "Os alunos não conseguirão mais ver sua posição.",
             icon: 'warning',
             showCancelButton: true,
             background: '#0A192F',

@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             authMenu.classList.remove('active');
             alternarMenu(false);
 
-            // Intercepta aqui: Se já estiver logado, vai direto pro painel sem abrir o Swal
             const motoristaLogado = localStorage.getItem('trackbus_motorista_nome');
             if (motoristaLogado) {
                 window.location.href = 'dashboard.html';
@@ -295,13 +294,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dados.status === "Em Rota") badgeStatus.classList.add('status-operacao');
                 if (dados.status === "Atrasado") badgeStatus.classList.add('status-atrasado');
 
-                let lat = dados.latitude || -6.8522; 
-                let lng = dados.longitude || -35.4908;
+                // SOLUÇÃO DO BUG: Força a conversão rigorosa para números decimais
+                let lat = parseFloat(dados.latitude) || -6.8522; 
+                let lng = parseFloat(dados.longitude) || -35.4908;
 
                 if (!mapa) {
                     mapa = L.map('mapa-estudante', { zoomControl: false }).setView([lat, lng], 15);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
                     marcadorOnibus = L.marker([lat, lng]).addTo(mapa).bindPopup(`<b>${dados.motorista || 'Ônibus'}</b>`).openPopup();
+                    
+                    // CORREÇÃO DO BUG DO LEAFLET: Aguarda a renderização do display:block concluir
+                    setTimeout(() => {
+                        mapa.invalidateSize();
+                        mapa.setView([lat, lng], 15);
+                    }, 300);
                 } else {
                     const novasCoordenadas = new L.LatLng(lat, lng);
                     marcadorOnibus.setLatLng(novasCoordenadas);
