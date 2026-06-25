@@ -1,0 +1,17 @@
+{
+  "short_name": "TrackBus",
+  "name": "TrackBus - Projeto Integrador",
+  "icons": [
+    {
+      "src": "https://files.catbox.moe/degz0p.png",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#020C1B",
+  "theme_color": "#0A192F",
+  "display": "standalone",
+  "orientation": "portrait"
+}
