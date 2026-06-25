@@ -82,10 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 html: `
                     <div style="text-align: left; margin-top: 10px;">
                         <label style="color: #8A99AD; font-size: 0.85rem; font-weight:600;">Nome Completo</label>
-                        <input id="swal-motorista-nome" class="swal2-input" placeholder="Ex: João Silva" style="margin: 5px 0 15px 0; width: 100%; background: #020C1B; color: white; border: 1px solid #1E3A8A; border-radius: 8px;">
+                        <input id="swal-motorista-nome" class="swal2-input" placeholder="Ex: João Silva" autocomplete="off" style="margin: 5px 0 15px 0; width: 100%; background: #020C1B; color: white; border: 1px solid #1E3A8A; border-radius: 8px;">
                         
                         <label style="color: #8A99AD; font-size: 0.85rem; font-weight:600;">Código Único / Matrícula</label>
-                        <input id="swal-motorista-codigo" type="password" class="swal2-input" placeholder="Sua senha ou matrícula" style="margin: 5px 0 5px 0; width: 100%; background: #020C1B; color: white; border: 1px solid #1E3A8A; border-radius: 8px;">
+                        <input id="swal-motorista-codigo" type="text" class="swal2-input input-mascarado" autocomplete="off" placeholder="Sua senha ou matrícula" style="margin: 5px 0 5px 0; width: 100%; background: #020C1B; color: white; border: 1px solid #1E3A8A; border-radius: 8px;">
                     </div>
                 `,
                 background: '#0A192F',
@@ -162,9 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             Swal.fire({
                 title: 'Painel de Gestão',
-                text: 'Informe o código exclusivo da Secretaria:',
-                input: 'password',
-                inputPlaceholder: 'Digite o código de acesso...',
                 background: '#0A192F',
                 color: 'white',
                 showCancelButton: true,
@@ -172,9 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 cancelButtonColor: '#7f8c8d',
                 confirmButtonText: 'Verificar',
                 cancelButtonText: 'Cancelar',
-                inputAttributes: { autocapitalize: 'off', autocorrect: 'off' },
-                inputValidator: (value) => {
-                    if (!value) { return 'Você precisa digitar o código!'; }
+                html: `
+                    <div style="text-align: left; margin-top: 10px;">
+                        <label style="color: #8A99AD; font-size: 0.85rem; font-weight:600;">Código Exclusivo da Secretaria</label>
+                        <input id="swal-secretaria-codigo" type="text" class="swal2-input input-mascarado" autocomplete="off" placeholder="Digite o código de acesso..." style="margin: 5px 0 5px 0; width: 100%; background: #020C1B; color: white; border: 1px solid #1E3A8A; border-radius: 8px;">
+                    </div>
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    const codigo = document.getElementById('swal-secretaria-codigo').value;
+                    if (!codigo) { 
+                        Swal.showValidationMessage('Você precisa digitar o código!'); 
+                    }
+                    return codigo;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -294,25 +301,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dados.status === "Em Rota") badgeStatus.classList.add('status-operacao');
                 if (dados.status === "Atrasado") badgeStatus.classList.add('status-atrasado');
 
-                // SOLUÇÃO DO BUG: Força a conversão rigorosa para números decimais
-                let lat = parseFloat(dados.latitude) || -6.8522; 
-                let lng = parseFloat(dados.longitude) || -35.4908;
+                let lat = dados.latitude || -6.8522; 
+                let lng = dados.longitude || -35.4908;
 
                 if (!mapa) {
                     mapa = L.map('mapa-estudante', { zoomControl: false }).setView([lat, lng], 15);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
                     marcadorOnibus = L.marker([lat, lng]).addTo(mapa).bindPopup(`<b>${dados.motorista || 'Ônibus'}</b>`).openPopup();
-                    
-                    // CORREÇÃO DO BUG DO LEAFLET: Aguarda a renderização do display:block concluir
-                    setTimeout(() => {
-                        mapa.invalidateSize();
-                        mapa.setView([lat, lng], 15);
-                    }, 300);
                 } else {
                     const novasCoordenadas = new L.LatLng(lat, lng);
                     marcadorOnibus.setLatLng(novasCoordenadas);
                     mapa.panTo(novasCoordenadas);
                 }
+
+                setTimeout(() => {
+                    if (mapa) {
+                        mapa.invalidateSize();
+                    }
+                }, 400);
             });
         });
     }

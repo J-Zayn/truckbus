@@ -21,7 +21,9 @@ body {
 
 *, *::before, *::after { box-sizing: border-box; }
 
-/* HEADER */
+/* ==========================================================
+   HEADER & LOGO (CORRIGIDO SEM OVO ACHATADO)
+   ========================================================== */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -49,11 +51,19 @@ body {
 .btn-logo-trigger {
     background: #0A192F;
     border: 1px solid var(--borda-sutil);
-    width: 42px; height: 42px; border-radius: 50%;
+    width: 42px; 
+    height: 42px; 
+    border-radius: 50%;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     transition: 0.2s;
+    padding: 0;          /* Remove espaço interno desigual do navegador */
+    flex-shrink: 0;      /* Impede o flexbox de esmagar o círculo em telas menores */
+    overflow: hidden;    /* Força a imagem interna a respeitar a curvatura do círculo */
 }
+
 .btn-logo-trigger:hover {
     border-color: var(--azul-eletrico);
     background: #112240;
@@ -67,9 +77,12 @@ body {
     display: flex; align-items: center; justify-content: center;
 }
 
+/* ==========================================================
+   MENUS DE AUTENTICAÇÃO E SIDEBAR
+   ========================================================== */
 .auth-dropdown {
     position: absolute;
-    top: 70px; right: 70px
+    top: 70px; right: 70px;
     background-color: var(--bg-card-dark);
     border: 1px solid var(--borda-sutil);
     border-radius: 12px;
@@ -122,6 +135,10 @@ body {
 
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 110; display: none; }
 .sidebar-overlay.active { display: block; }
+
+/* ==========================================================
+   LAYOUT CONTAINER E FORMULÁRIOS
+   ========================================================== */
 .content-wrapper { padding: 20px; max-width: 1200px; margin: 0 auto; }
 .hero-section h2 { font-size: 1.6rem; font-weight: 600; line-height: 1.3; margin: 20px 0 30px 0; max-width: 450px; }
 .search-container { background-color: var(--bg-card-light); border-radius: 16px; padding: 24px; box-shadow: var(--sombra-premium); margin-bottom: 25px; }
@@ -133,6 +150,9 @@ body {
 .btn-buscar { width: 100%; padding: 16px; background-color: var(--azul-eletrico); color: var(--bg-principal); border: none; border-radius: 8px; font-weight: 700; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
 .btn-buscar:hover { background-color: var(--azul-hover); }
 
+/* ==========================================================
+   RESULTADOS DA BUSCA E MAPA
+   ========================================================== */
 .results-container { margin-top: 25px; display: none; animation: fadeIn 0.4s ease-in-out; }
 .result-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
 .status-indicator { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; background-color: #475569; color: white; }
@@ -149,24 +169,9 @@ body {
 .map-wrapper { border-radius: 16px; overflow: hidden; border: 1px solid var(--borda-sutil); box-shadow: var(--sombra-premium); }
 #mapa-estudante { height: 300px; width: 100%; }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (min-width: 768px) {
-    .main-header { padding: 20px 40px; }
-    .content-wrapper { padding: 40px; }
-    .hero-section h2 { font-size: 2.2rem; max-width: 600px; }
-    #form-busca-estudante { display: flex; align-items: flex-end; gap: 20px; }
-    .input-group { margin-bottom: 0; flex: 1; }
-    .btn-buscar { width: auto; padding: 14px 30px; height: 50px; }
-    .results-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; }
-    .result-header { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
-    .details-grid { margin-bottom: 0; }
-    #mapa-estudante { height: 450px; }
-}
-
+/* ==========================================================
+   ELEMENTOS DE IMAGEM E DESIGN DA LOGO
+   ========================================================== */
 .logo-foto {
     width: 100%;
     height: 100%;
@@ -174,6 +179,21 @@ body {
     object-fit: cover;
 }
 
+.brand-name img, 
+.driver-profile img, 
+.logo-container img,
+img.logo {
+    width: 42px;          
+    height: 42px;         
+    object-fit: cover;    
+    border-radius: 50%;   
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* ==========================================================
+   MODAL SWEETALERT COMPLEMENTOS (AUTH MENU)
+   ========================================================== */
 #auth-menu {
     position: absolute !important;
     top: 70px !important;
@@ -190,10 +210,7 @@ body {
     flex-direction: column;
     gap: 8px;
 }
-
-#auth-menu.active {
-    display: flex !important;
-}
+#auth-menu.active { display: flex !important; }
 
 #auth-menu h4, #auth-menu .acesso-titulo {
     color: #8A99AD !important;
@@ -224,8 +241,36 @@ body {
     cursor: pointer !important;
     text-align: left !important;
 }
-
 #auth-menu a:hover, #auth-menu button:hover {
     background-color: rgba(0, 180, 216, 0.1) !important;
     color: #00B4D8 !important;
+}
+
+/* ==========================================================
+   MÁGICA DO PWA: ADICIONADO PARA OCULTAR CHAVE/CADEADO NO KEYBOARD
+   ========================================================== */
+.input-mascarado {
+    -webkit-text-security: disc !important; /* Força caracteres de texto normal a virarem bolinhas ocultas */
+    text-security: disc !important;
+}
+
+/* ==========================================================
+   ANIMAÇÕES E MEDIA QUERIES (RESPONSIVIDADE)
+   ========================================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 768px) {
+    .main-header { padding: 20px 40px; }
+    .content-wrapper { padding: 40px; }
+    .hero-section h2 { font-size: 2.2rem; max-width: 600px; }
+    #form-busca-estudante { display: flex; align-items: flex-end; gap: 20px; }
+    .input-group { margin-bottom: 0; flex: 1; }
+    .btn-buscar { width: auto; padding: 14px 30px; height: 50px; }
+    .results-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; }
+    .result-header { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+    .details-grid { margin-bottom: 0; }
+    #mapa-estudante { height: 450px; }
 }
